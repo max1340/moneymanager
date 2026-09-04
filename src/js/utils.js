@@ -122,6 +122,20 @@ function pluralize(count, forms) {
   return forms[2];
 }
 
+function formatMoney(n) {
+  return n.toLocaleString('ru-RU', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }) + ' ₪';
+}
+
+function formatShortMoney(n) {
+  const abs = Math.abs(n);
+  if (abs >= 1_000_000) return (n / 1_000_000).toLocaleString('ru-RU', { maximumFractionDigits: 1 }) + ' млн';
+  if (abs >= 1_000) return (n / 1_000).toLocaleString('ru-RU', { maximumFractionDigits: 1 }) + ' тыс.';
+  return n.toLocaleString('ru-RU', { maximumFractionDigits: 0 });
+}
+
 export {
   uuid,
   formatDate,
@@ -136,5 +150,7 @@ export {
   getCategoryColor,
   escapeHtml,
   pluralize,
+  formatMoney,
+  formatShortMoney,
   CATEGORY_COLORS
 };

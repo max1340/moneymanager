@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Financy PRO</title>
+<title>Financy PRO — Менеджер бюджета</title>
 <link rel="stylesheet" href="src/css/styles.css">
 <meta name="theme-color" content="#2a7de1">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,259 +15,679 @@
 </head>
 <body>
 
+<!-- SVG Icon Sprite (Lucide / Feather style) -->
+<svg style="display:none;" aria-hidden="true">
+  <defs>
+    <!-- Logo / Bank -->
+    <g id="icon-bank">
+      <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- Navigation: Overview -->
+    <g id="icon-overview">
+      <rect x="3" y="3" width="7" height="9" rx="1" fill="none" stroke="currentColor" stroke-width="2"/>
+      <rect x="14" y="3" width="7" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="2"/>
+      <rect x="14" y="12" width="7" height="9" rx="1" fill="none" stroke="currentColor" stroke-width="2"/>
+      <rect x="3" y="16" width="7" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="2"/>
+    </g>
+    <!-- Navigation: Operations -->
+    <g id="icon-operations">
+      <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 14l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- Navigation: Goals -->
+    <g id="icon-goals">
+      <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+      <circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="2"/>
+      <circle cx="12" cy="12" r="2" fill="currentColor"/>
+    </g>
+    <!-- Navigation: Settings -->
+    <g id="icon-settings">
+      <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" fill="none" stroke="currentColor" stroke-width="2"/>
+    </g>
+    <!-- Plus -->
+    <g id="icon-plus">
+      <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </g>
+    <!-- More / Overflow -->
+    <g id="icon-more">
+      <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+      <circle cx="12" cy="5" r="1.5" fill="currentColor"/>
+      <circle cx="12" cy="19" r="1.5" fill="currentColor"/>
+    </g>
+    <!-- Income (Trending Up) -->
+    <g id="icon-income">
+      <path d="M23 6l-9.5 9.5-5-5L1 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M17 6h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- Fixed Expense (Home) -->
+    <g id="icon-fixed">
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M9 22V12h6v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- Variable Expense (Shopping Cart) -->
+    <g id="icon-variable">
+      <circle cx="9" cy="21" r="1" fill="currentColor"/>
+      <circle cx="20" cy="21" r="1" fill="currentColor"/>
+      <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- Tag (Custom category) -->
+    <g id="icon-tag">
+      <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="7" y1="7" x2="7.01" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </g>
+    <!-- Edit (Pencil) -->
+    <g id="icon-edit">
+      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- Trash -->
+    <g id="icon-trash">
+      <polyline points="3 6 5 6 21 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- Download / Export -->
+    <g id="icon-download">
+      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- Upload / Import -->
+    <g id="icon-upload">
+      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- Cloud (Sync) -->
+    <g id="icon-cloud">
+      <path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- Cloud Off -->
+    <g id="icon-cloud-off">
+      <path d="M22.61 16.95A5 5 0 0018 10h-1.26a8 8 0 00-7.05-6M5 5a8 8 0 00-4 7h1.5A5 5 0 007 19h12M1 1l22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- Refresh / Syncing -->
+    <g id="icon-refresh">
+      <polyline points="23 4 23 10 17 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline points="1 20 1 14 7 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- Moon -->
+    <g id="icon-moon">
+      <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- Sun -->
+    <g id="icon-sun">
+      <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </g>
+    <!-- Search -->
+    <g id="icon-search">
+      <circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
+      <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </g>
+    <!-- Check -->
+    <g id="icon-check">
+      <polyline points="20 6 9 17 4 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- X / Close -->
+    <g id="icon-x">
+      <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </g>
+    <!-- Chart / Report -->
+    <g id="icon-bar-chart-2">
+      <line x1="18" y1="20" x2="18" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <line x1="12" y1="20" x2="12" y2="4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <line x1="6" y1="20" x2="6" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </g>
+    <!-- Keyboard -->
+    <g id="icon-keyboard">
+      <rect x="2" y="4" width="20" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+      <line x1="6" y1="8" x2="6" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <line x1="10" y1="8" x2="10" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <line x1="14" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <line x1="18" y1="8" x2="18" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <line x1="7" y1="16" x2="17" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </g>
+    <!-- Copy / Template -->
+    <g id="icon-copy">
+      <rect x="9" y="9" width="13" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" fill="none" stroke="currentColor" stroke-width="2"/>
+    </g>
+  </defs>
+</svg>
+
 <!-- Setup Overlay (First Run) -->
-<div class="setup-overlay" id="setupOverlay">
+<div class="setup-overlay" id="setupOverlay" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
   <div class="setup-card">
-    <h2>🏦 Financy PRO</h2>
-    <p>Выберите стартовый финансовый цикл, с которого начинается ваш учёт.</p>
-    <select id="setupCycleSelect"></select>
+    <div class="setup-icon-wrap">
+      <svg class="icon icon-lg"><use href="#icon-bank"></use></svg>
+    </div>
+    <h2 id="setupTitle">Financy PRO</h2>
+    <p>Выберите стартовый финансовый цикл, с которого начинается ваш учёт бюджета.</p>
+    <select id="setupCycleSelect" aria-label="Стартовый цикл"></select>
     <button class="btn btn-primary" id="setupConfirmBtn" style="width:100%;">Начать учёт</button>
   </div>
 </div>
 
-<!-- Navbar -->
-<nav class="navbar">
-  <div class="navbar-brand">
-    <span>🏦</span> Financy PRO
+<!-- App Header / Navbar -->
+<header class="navbar">
+  <div class="navbar-left">
+    <div class="navbar-brand">
+      <svg class="brand-logo icon"><use href="#icon-bank"></use></svg>
+      <span class="brand-title">Financy PRO</span>
+    </div>
   </div>
+
   <div class="navbar-center">
     <div class="cycle-selector">
-      <select id="cycleSelect"></select>
+      <select id="cycleSelect" aria-label="Выбор периода"></select>
     </div>
   </div>
+
+  <!-- Desktop Tabs Navigation -->
+  <nav class="desktop-tabs" role="tablist" aria-label="Разделы приложения">
+    <button class="tab-btn active" role="tab" aria-selected="true" data-tab-target="overview" id="desktopTabOverview">
+      <svg class="icon"><use href="#icon-overview"></use></svg>
+      <span>Обзор</span>
+    </button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab-target="operations" id="desktopTabOperations">
+      <svg class="icon"><use href="#icon-operations"></use></svg>
+      <span>Операции</span>
+    </button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab-target="goals" id="desktopTabGoals">
+      <svg class="icon"><use href="#icon-goals"></use></svg>
+      <span>Цели</span>
+    </button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab-target="settings" id="desktopTabSettings">
+      <svg class="icon"><use href="#icon-settings"></use></svg>
+      <span>Настройки</span>
+    </button>
+  </nav>
+
   <div class="navbar-right">
-    <div class="navbar-status" id="syncStatus">
-      <span class="dot red"></span>
-      <span class="status-text">Подключение...</span>
+    <!-- Clear Cloud Sync Status -->
+    <div class="sync-badge" id="syncStatus" title="Статус синхронизации">
+      <svg class="icon sync-icon"><use href="#icon-cloud"></use></svg>
+      <span class="status-text">Синхронизировано</span>
     </div>
-    <button class="btn btn-outline btn-sm" id="importJsonBtn" title="Импорт / Перенос данных из JSON">📥 Импорт</button>
-    <button class="btn btn-outline btn-sm" id="exportJsonBtn" title="Скачать JSON-бекап">💾 Бекап</button>
-    <button class="btn btn-outline btn-sm" id="openReportBtn" title="Годовой отчёт">📊</button>
-    <button class="btn-icon" id="themeToggle" title="Переключить тему">🌙</button>
-  </div>
-</nav>
 
-<!-- Main Content -->
-<div class="container">
-
-  <!-- Metric Cards -->
-  <div class="grid-3" style="margin-bottom:16px;">
-    <div class="card metric-card">
-      <div class="card-header">
-        <span class="card-title">💰 Общий баланс на счёте</span>
-      </div>
-      <div class="card-value" id="totalBalance">0 ₪</div>
-      <div class="card-sub">Накоплено за всё время</div>
-    </div>
-    <div class="card metric-card">
-      <div class="card-header">
-        <span class="card-title">📈 Доходы за текущий цикл</span>
-        <span class="chip chip-primary" id="expensePercent">0%</span>
-      </div>
-      <div class="card-value" id="cycleIncome">0 ₪</div>
-      <div class="card-sub" id="cycleIncomeSub">с 10.06.2026 по 09.07.2026</div>
-    </div>
-    <div class="card metric-card">
-      <div class="card-header">
-        <span class="card-title">💳 Остаток от ЗП (Свободный бюджет)</span>
-      </div>
-      <div class="card-value" id="remainingBudget">0 ₪</div>
-      <div class="card-sub">Доходы цикла − Расходы цикла</div>
-    </div>
-  </div>
-
-  <!-- Row 2: Initial Capital + Donut Chart -->
-  <div class="grid-2" style="margin-bottom:16px;">
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">🏁 Начальный счёт</span>
-      </div>
-      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:8px;">
-        Укажите сумму, с которой вы начали вести учёт.
-      </p>
-      <div class="capital-input-group">
-        <input type="number" id="startCapitalInput" placeholder="0" step="0.01">
-        <button class="btn btn-primary" id="setCapitalBtn">Ок</button>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">📊 Структура расходов</span>
-      </div>
-      <div class="chart-container">
-        <svg class="donut-svg" viewBox="0 0 160 160" id="donutChart">
-          <circle cx="80" cy="80" r="60" fill="none" stroke="var(--border)" stroke-width="20" />
-          <circle cx="80" cy="80" r="60" fill="none" stroke="var(--chart-color-1)" stroke-width="20"
-            stroke-dasharray="0 377" stroke-dashoffset="0" stroke-linecap="round"
-            transform="rotate(-90 80 80)" id="donutSegment1" style="transition: stroke-dasharray 0.4s ease;" />
-          <circle cx="80" cy="80" r="60" fill="none" stroke="var(--chart-color-2)" stroke-width="20"
-            stroke-dasharray="0 377" stroke-dashoffset="0" stroke-linecap="round"
-            transform="rotate(-90 80 80)" id="donutSegment2" style="transition: stroke-dasharray 0.4s ease;" />
-          <text x="80" y="80" text-anchor="middle" dominant-baseline="middle" font-size="28" font-weight="700" fill="var(--text)" id="donutCenterText">0%</text>
-        </svg>
-        <div class="donut-legend"></div>
+    <!-- Overflow Menu Button -->
+    <div class="overflow-menu-wrap">
+      <button class="btn-icon" id="overflowMenuBtn" aria-label="Дополнительные действия" aria-expanded="false" title="Меню действий">
+        <svg class="icon"><use href="#icon-more"></use></svg>
+      </button>
+      <div class="overflow-dropdown" id="overflowDropdown" role="menu">
+        <button class="dropdown-item" id="importJsonBtn" role="menuitem">
+          <svg class="icon"><use href="#icon-upload"></use></svg>
+          <span>Импорт данных JSON</span>
+        </button>
+        <button class="dropdown-item" id="exportJsonBtn" role="menuitem">
+          <svg class="icon"><use href="#icon-download"></use></svg>
+          <span>Скачать бэкап JSON</span>
+        </button>
+        <button class="dropdown-item" id="openReportBtn" role="menuitem">
+          <svg class="icon"><use href="#icon-bar-chart-2"></use></svg>
+          <span>Годовой отчёт</span>
+        </button>
+        <button class="dropdown-item" id="openHotkeysBtn" role="menuitem">
+          <svg class="icon"><use href="#icon-keyboard"></use></svg>
+          <span>Горячие клавиши</span>
+        </button>
+        <div class="dropdown-divider"></div>
+        <button class="dropdown-item" id="themeToggle" role="menuitem">
+          <svg class="icon" id="themeIcon"><use href="#icon-moon"></use></svg>
+          <span id="themeLabel">Тёмная тема</span>
+        </button>
       </div>
     </div>
   </div>
+</header>
 
-  <!-- Quick Input Forms -->
-  <div class="grid-3" style="margin-bottom:16px;">
-    <div class="card form-section">
-      <div class="form-section-title">💵 Доходы</div>
-      <div class="form-row">
-        <input type="text" id="incomeName" placeholder="Название (Зарплата)">
-        <input type="date" id="incomeDate">
-        <input type="number" id="incomeAmount" placeholder="Сумма ₪" step="0.01">
-        <button class="btn btn-primary" id="addIncomeBtn">+</button>
-      </div>
-    </div>
-    <div class="card form-section">
-      <div class="form-section-title">
-        📋 Постоянные траты
-        <button class="btn btn-outline btn-xs" id="templateBtn">📋 Шаблон</button>
-      </div>
-      <div class="form-row">
-        <input type="text" id="fixedName" placeholder="Аренда, подписки...">
-        <input type="date" id="fixedDate">
-        <input type="number" id="fixedAmount" placeholder="Сумма ₪" step="0.01">
-        <button class="btn btn-primary" id="addFixedBtn">+</button>
-      </div>
-    </div>
-    <div class="card form-section">
-      <div class="form-section-title">
-        💳 Непостоянные траты / Кредитка
-        <button class="btn btn-outline btn-xs" id="addCategoryBtn" title="Управление категориями">📂</button>
-      </div>
-      <div class="form-row">
-        <input type="text" id="variableName" placeholder="Покупка, услуга...">
-        <input type="date" id="variableDate">
-        <input type="number" id="variableAmount" placeholder="Сумма ₪" step="0.01">
-        <button class="btn btn-primary" id="addVariableBtn">+</button>
-      </div>
-    </div>
-  </div>
+<!-- Main Container with Tab Panels -->
+<main class="container">
 
-  <!-- Additional Features Row -->
-  <div class="grid-3" style="margin-bottom:16px;">
-    <!-- Trend Chart -->
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">📈 Динамика баланса</span>
+  <!-- ============================================
+       TAB 1: ОБЗОР (Overview)
+       ============================================ -->
+  <section class="tab-panel active" id="tabOverview" role="tabpanel" aria-labelledby="desktopTabOverview">
+
+    <!-- Metric Cards Grid -->
+    <div class="metrics-grid">
+      <!-- Card 1: Total Balance -->
+      <div class="card metric-card">
+        <div class="card-header">
+          <span class="card-title">Общий баланс на счёте</span>
+        </div>
+        <div class="card-value" id="totalBalance">0,00 ₪</div>
+        <div class="card-sub">Накоплено за всё время учёта</div>
       </div>
-      <div class="trend-chart-wrapper" id="trendChartWrapper">
-        <div class="empty-state" style="padding:10px;"><p>Для графика трендов нужно минимум 2 цикла данных</p></div>
+
+      <!-- Card 2: Cycle Income -->
+      <div class="card metric-card">
+        <div class="card-header">
+          <span class="card-title">Доходы за текущий цикл</span>
+          <div class="expense-ratio-pill" id="expenseRatioWrap" title="Отношение расходов к доходам за цикл">
+            <span class="chip chip-primary" id="expensePercent">0%</span>
+            <span class="chip-label">от доходов</span>
+          </div>
+        </div>
+        <div class="card-value" id="cycleIncome">0,00 ₪</div>
+        <div class="card-sub" id="cycleIncomeSub">Период цикла</div>
+      </div>
+
+      <!-- Card 3: Remaining Budget -->
+      <div class="card metric-card">
+        <div class="card-header">
+          <span class="card-title">Свободный бюджет (Остаток от ЗП)</span>
+        </div>
+        <div class="card-value" id="remainingBudget">0,00 ₪</div>
+        <div class="card-sub">Доходы цикла − Расходы цикла</div>
       </div>
     </div>
 
-    <!-- Budget Limits -->
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">💰 Бюджетные лимиты</span>
-        <button class="btn btn-outline btn-xs" id="editBudgetBtn">✏️</button>
+    <!-- Overview 2-Column Grid -->
+    <div class="overview-grid">
+      <!-- Left Column: Donut Structure -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Структура расходов</span>
+        </div>
+        <div class="chart-container">
+          <div class="donut-wrap">
+            <svg class="donut-svg" viewBox="0 0 160 160" id="donutChart" aria-label="Круговая диаграмма расходов">
+              <g id="donutSegmentsContainer">
+                <circle cx="80" cy="80" r="60" fill="none" stroke="var(--border)" stroke-width="18" />
+              </g>
+              <!-- Center Text: Total Expenses -->
+              <text x="80" y="74" text-anchor="middle" dominant-baseline="middle" class="donut-center-val" id="donutCenterText">0,00 ₪</text>
+              <text x="80" y="93" text-anchor="middle" dominant-baseline="middle" class="donut-center-sub" id="donutCenterSub">Всего расходов</text>
+            </svg>
+          </div>
+          <div class="donut-legend" aria-label="Легенда диаграммы"></div>
+        </div>
       </div>
-      <div class="budget-bar-container" id="budgetLimitsContainer">
-        <div class="empty-state" style="padding:10px;"><p>Лимиты не установлены</p></div>
-      </div>
-    </div>
 
-    <!-- Cash Flow Forecast -->
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">🔮 Прогноз денежного потока</span>
+      <!-- Right Column: Budget Limits -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Бюджетные лимиты</span>
+          <button class="btn btn-outline btn-xs" id="editBudgetBtn" aria-label="Редактировать лимиты">
+            <svg class="icon"><use href="#icon-edit"></use></svg>
+            <span>Изменить</span>
+          </button>
+        </div>
+        <div class="budget-bar-container" id="budgetLimitsContainer">
+          <!-- Populated by JS -->
+        </div>
       </div>
-      <div id="forecastContainer">
-        <div class="empty-state" style="padding:10px;"><p>Недостаточно данных для прогноза</p></div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Goals + Recurring -->
-  <div class="grid-2" style="margin-bottom:16px;">
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">🎯 Финансовые цели</span>
-        <button class="btn btn-outline btn-xs" id="addGoalBtn">+ Добавить</button>
+      <!-- Left Column: Trend Chart (Full width on overview) -->
+      <div class="card full-width">
+        <div class="card-header">
+          <span class="card-title">Динамика доходов и расходов по циклам</span>
+        </div>
+        <div class="trend-chart-wrapper" id="trendChartWrapper">
+          <!-- Populated by JS -->
+        </div>
       </div>
-      <div id="goalsContainer">
-        <div class="empty-state" style="padding:10px;"><p>Цели не добавлены</p></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">🔄 Регулярные транзакции</span>
-        <button class="btn btn-outline btn-xs" id="addRecurringBtn">+</button>
-      </div>
-      <div id="recurringContainer">
-        <div class="empty-state" style="padding:10px;" id="recurringSummary">
-          <p>Нет регулярных транзакций</p>
-          <p style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">Регулярные траты (аренда, подписки) будут автоматически добавляться каждый месяц</p>
+
+      <!-- Right Column: Cash Flow Forecast -->
+      <div class="card full-width">
+        <div class="card-header">
+          <span class="card-title">Прогноз денежного потока</span>
+        </div>
+        <div id="forecastContainer">
+          <!-- Populated by JS -->
         </div>
       </div>
     </div>
+
+  </section>
+
+  <!-- ============================================
+       TAB 2: ОПЕРАЦИИ (Operations & Unified Form)
+       ============================================ -->
+  <section class="tab-panel" id="tabOperations" role="tabpanel" aria-labelledby="desktopTabOperations">
+
+    <!-- Unified Add Operation Form Card -->
+    <div class="card add-op-card">
+      <div class="card-header">
+        <span class="card-title" id="formHeaderTitle">Новая операция</span>
+        <button type="button" class="btn btn-outline btn-xs" id="templateBtn" title="Скопировать постоянные траты из предыдущего цикла">
+          <svg class="icon"><use href="#icon-copy"></use></svg>
+          <span>Скопировать постоянные</span>
+        </button>
+      </div>
+
+      <form id="unifiedAddForm" class="unified-form" onsubmit="return false;">
+        <!-- Step 1: Segmented Control (Income / Expense) -->
+        <div class="form-segment-control" role="radiogroup" aria-label="Тип операции">
+          <button type="button" class="segment-btn active" id="typeExpenseBtn" data-type="expense" role="radio" aria-checked="true">
+            <svg class="icon"><use href="#icon-variable"></use></svg>
+            <span>Расход</span>
+          </button>
+          <button type="button" class="segment-btn" id="typeIncomeBtn" data-type="income" role="radio" aria-checked="false">
+            <svg class="icon"><use href="#icon-income"></use></svg>
+            <span>Доход</span>
+          </button>
+        </div>
+
+        <!-- Step 2: Expense Subtype Toggle (Fixed / Variable) -->
+        <div class="form-subtype-toggle" id="expenseSubtypeContainer">
+          <span class="subtype-label">Категория расхода:</span>
+          <div class="pill-group" role="radiogroup" aria-label="Тип расхода">
+            <button type="button" class="pill-btn active" id="subFixedBtn" data-subtype="fixed" role="radio" aria-checked="true">
+              <svg class="icon"><use href="#icon-fixed"></use></svg>
+              <span>Постоянная</span>
+            </button>
+            <button type="button" class="pill-btn" id="subVariableBtn" data-subtype="variable" role="radio" aria-checked="false">
+              <svg class="icon"><use href="#icon-variable"></use></svg>
+              <span>Непостоянная</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Input Fields Grid -->
+        <div class="form-fields-grid">
+          <div class="form-group flex-2">
+            <label for="opName" class="form-label">Название</label>
+            <input type="text" id="opName" class="form-input" placeholder="Например: Зарплата, Аренда, Супермаркет..." required autocomplete="off">
+          </div>
+
+          <div class="form-group flex-1">
+            <label for="opAmount" class="form-label">Сумма (₪)</label>
+            <input type="number" id="opAmount" class="form-input" placeholder="0,00" step="0.01" min="0.01" required inputmode="decimal">
+          </div>
+
+          <div class="form-group flex-1">
+            <label for="opDate" class="form-label">Дата (ДД.ММ.ГГГГ)</label>
+            <input type="date" id="opDate" class="form-input" required>
+          </div>
+
+          <div class="form-group flex-1" id="opCategoryGroup">
+            <label for="opCategory" class="form-label">Подкатегория</label>
+            <select id="opCategory" class="form-select"></select>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-submit-row">
+          <button type="submit" class="btn btn-primary btn-block" id="opSubmitBtn">
+            <svg class="icon"><use href="#icon-plus"></use></svg>
+            <span id="opSubmitBtnText">Добавить расход</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Operations Journal Card -->
+    <div class="card journal-card">
+      <div class="card-header">
+        <div>
+          <span class="card-title">Журнал операций</span>
+          <span class="operations-count-badge" id="operationsCount">0 операций</span>
+        </div>
+        <div class="csv-actions-group">
+          <button class="btn btn-outline btn-sm" id="exportBtn" title="Экспортировать операции текущего цикла в CSV">
+            <svg class="icon"><use href="#icon-download"></use></svg>
+            <span>Экспорт CSV</span>
+          </button>
+          <button class="btn btn-outline btn-sm" id="importBtn" title="Импортировать операции из CSV файла">
+            <svg class="icon"><use href="#icon-upload"></use></svg>
+            <span>Импорт CSV</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Period Summary Bar (Totals for current period) -->
+      <div class="period-summary-bar" id="periodSummaryBar">
+        <div class="summary-chip positive">
+          <span class="summary-label">Доходы:</span>
+          <strong id="summaryTotalIncome">+0,00 ₪</strong>
+        </div>
+        <div class="summary-chip negative">
+          <span class="summary-label">Расходы:</span>
+          <strong id="summaryTotalExpenses">−0,00 ₪</strong>
+        </div>
+        <div class="summary-chip neutral">
+          <span class="summary-label">Итог:</span>
+          <strong id="summaryNetBalance">0,00 ₪</strong>
+        </div>
+      </div>
+
+      <!-- Filters & Search Toolbar -->
+      <div class="toolbar">
+        <div class="search-input-wrap">
+          <svg class="icon search-icon"><use href="#icon-search"></use></svg>
+          <input type="text" class="search-input" id="searchInput" placeholder="Поиск по названию...">
+        </div>
+
+        <!-- Type Filter Chips (All / Incomes / Expenses) -->
+        <div class="filter-type-chips" role="radiogroup" aria-label="Фильтр по типу">
+          <button type="button" class="chip-filter-btn active" data-type-filter="all">Все</button>
+          <button type="button" class="chip-filter-btn" data-type-filter="income">Доходы</button>
+          <button type="button" class="chip-filter-btn" data-type-filter="expense">Расходы</button>
+        </div>
+
+        <!-- Category Dropdown -->
+        <select class="filter-select" id="filterSelect" aria-label="Фильтр по категории">
+          <option value="all">Все категории</option>
+        </select>
+      </div>
+
+      <!-- Operations List (Clickable cards with SVG category icons) -->
+      <div class="operations-list" id="operationsList" role="list"></div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <svg class="empty-icon"><use href="#icon-operations"></use></svg>
+        <p>В этом цикле пока нет операций</p>
+        <button class="btn btn-primary btn-sm" id="emptyAddOpBtn">
+          <svg class="icon"><use href="#icon-plus"></use></svg>
+          <span>Добавить операцию</span>
+        </button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============================================
+       TAB 3: ЦЕЛИ (Financial Goals)
+       ============================================ -->
+  <section class="tab-panel" id="tabGoals" role="tabpanel" aria-labelledby="desktopTabGoals">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Финансовые цели</span>
+        <button class="btn btn-primary btn-sm" id="addGoalBtn">
+          <svg class="icon"><use href="#icon-plus"></use></svg>
+          <span>Добавить цель</span>
+        </button>
+      </div>
+      <div id="goalsContainer" class="goals-grid">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       TAB 4: НАСТРОЙКИ (Settings & Initial Capital)
+       ============================================ -->
+  <section class="tab-panel" id="tabSettings" role="tabpanel" aria-labelledby="desktopTabSettings">
+    <div class="settings-grid">
+
+      <!-- Card: Initial Capital -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Начальный счёт</span>
+        </div>
+        <p class="settings-desc">Сумма, с которой вы начали вести учёт в приложении.</p>
+        
+        <div class="capital-display-box" id="capitalDisplayBox">
+          <div class="capital-val-wrap">
+            <span class="capital-current-label">Текущий начальный счёт:</span>
+            <span class="capital-current-val" id="startCapitalDisplay">0,00 ₪</span>
+          </div>
+          <button class="btn btn-outline btn-sm" id="editCapitalBtn">
+            <svg class="icon"><use href="#icon-edit"></use></svg>
+            <span>Изменить</span>
+          </button>
+        </div>
+
+        <!-- Inline Edit Form (Hidden by default) -->
+        <div class="capital-edit-box" id="capitalEditBox" style="display:none;">
+          <label for="startCapitalInput" class="form-label">Новая сумма начального счёта (₪):</label>
+          <div class="capital-input-row">
+            <input type="number" id="startCapitalInput" class="form-input" placeholder="0,00" step="0.01">
+            <button class="btn btn-primary btn-sm" id="saveCapitalBtn">Сохранить</button>
+            <button class="btn btn-outline btn-sm" id="cancelCapitalBtn">Отмена</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card: Custom Categories Management -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Пользовательские категории</span>
+        </div>
+        <p class="settings-desc">Создавайте свои категории для детального учёта расходов.</p>
+        
+        <div class="add-category-inline-form">
+          <div class="form-group flex-2">
+            <label for="newCategoryName" class="form-label">Название категории</label>
+            <input type="text" id="newCategoryName" class="form-input" placeholder="Например: Продукты, Авто, Спорт...">
+          </div>
+          <div class="form-group flex-color">
+            <label for="newCategoryColor" class="form-label">Цвет</label>
+            <input type="color" id="newCategoryColor" class="color-picker-input" value="#8b5cf6">
+          </div>
+          <button class="btn btn-primary" id="addCategoryBtn" style="align-self:flex-end;">
+            <svg class="icon"><use href="#icon-plus"></use></svg>
+            <span>Добавить</span>
+          </button>
+        </div>
+
+        <div id="categoriesList" class="categories-list-wrap"></div>
+      </div>
+
+      <!-- Card: Recurring Transactions -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Регулярные транзакции</span>
+          <button class="btn btn-outline btn-xs" id="addRecurringBtn">
+            <svg class="icon"><use href="#icon-plus"></use></svg>
+            <span>Добавить</span>
+          </button>
+        </div>
+        <p class="settings-desc">Ежемесячные траты (аренда, подписки), которые автоматически учитываются каждый цикл.</p>
+        <div id="recurringList" class="recurring-list-wrap"></div>
+      </div>
+
+      <!-- Card: Data Management -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Резервные копии и отчёты</span>
+        </div>
+        <p class="settings-desc">Хранение данных и формирование отчётов.</p>
+        <div class="settings-actions-row">
+          <button class="btn btn-outline btn-sm" id="settingsImportJsonBtn">
+            <svg class="icon"><use href="#icon-upload"></use></svg>
+            <span>Импорт из JSON</span>
+          </button>
+          <button class="btn btn-outline btn-sm" id="settingsExportJsonBtn">
+            <svg class="icon"><use href="#icon-download"></use></svg>
+            <span>Скачать бэкап JSON</span>
+          </button>
+          <button class="btn btn-outline btn-sm" id="settingsOpenReportBtn">
+            <svg class="icon"><use href="#icon-bar-chart-2"></use></svg>
+            <span>Годовой отчёт</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- Floating Action Button (FAB) for Mobile / Tablet -->
+<button class="fab-btn" id="fabBtn" aria-label="Добавить операцию" title="Добавить новую операцию">
+  <svg class="icon"><use href="#icon-plus"></use></svg>
+</button>
+
+<!-- Mobile Bottom Navigation Tab Bar -->
+<nav class="bottom-tab-bar" role="tablist" aria-label="Навигация по разделам">
+  <button class="bottom-tab-btn active" role="tab" aria-selected="true" data-tab-target="overview" id="bottomTabOverview">
+    <svg class="icon"><use href="#icon-overview"></use></svg>
+    <span>Обзор</span>
+  </button>
+  <button class="bottom-tab-btn" role="tab" aria-selected="false" data-tab-target="operations" id="bottomTabOperations">
+    <svg class="icon"><use href="#icon-operations"></use></svg>
+    <span>Операции</span>
+  </button>
+  <button class="bottom-tab-btn" role="tab" aria-selected="false" data-tab-target="goals" id="bottomTabGoals">
+    <svg class="icon"><use href="#icon-goals"></use></svg>
+    <span>Цели</span>
+  </button>
+  <button class="bottom-tab-btn" role="tab" aria-selected="false" data-tab-target="settings" id="bottomTabSettings">
+    <svg class="icon"><use href="#icon-settings"></use></svg>
+    <span>Настройки</span>
+  </button>
+</nav>
+
+<!-- ============================================
+     MODALS & DETAIL SHEETS
+     ============================================ -->
+
+<!-- Operation Detail Sheet / Modal -->
+<div class="modal-overlay" id="opDetailModal" role="dialog" aria-modal="true" aria-labelledby="detailOpName">
+  <div class="modal modal-bottom-sheet">
+    <div class="detail-sheet-header">
+      <div class="detail-avatar" id="detailAvatar">
+        <svg class="icon icon-lg" id="detailCategoryIcon"><use href="#icon-variable"></use></svg>
+      </div>
+      <div class="detail-header-info">
+        <h3 class="detail-op-name" id="detailOpName">Название операции</h3>
+        <div class="detail-meta">
+          <span class="category-badge" id="detailCategoryBadge">Категория</span>
+          <span class="detail-date" id="detailDate">01.01.2026</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-amount-box">
+      <span class="detail-amount-label">Сумма операции</span>
+      <div class="detail-amount-val" id="detailAmount">0,00 ₪</div>
+    </div>
+
+    <div class="modal-actions detail-actions">
+      <button class="btn btn-outline" id="detailEditBtn">
+        <svg class="icon"><use href="#icon-edit"></use></svg>
+        <span>Редактировать</span>
+      </button>
+      <button class="btn btn-danger" id="detailDeleteBtn">
+        <svg class="icon"><use href="#icon-trash"></use></svg>
+        <span>Удалить</span>
+      </button>
+      <button class="btn btn-outline" id="detailCloseBtn">Закрыть</button>
+    </div>
   </div>
-
-  <!-- Operations Table + Mobile Cards -->
-  <div class="card" style="margin-bottom:80px;">
-    <div class="card-header">
-      <span class="card-title">📜 Журнал операций</span>
-      <span style="font-size:0.8rem;color:var(--text-muted);" id="operationsCount">0 операций</span>
-    </div>
-    <!-- Search & Filter Toolbar -->
-    <div class="toolbar">
-      <input type="text" class="search-input" id="searchInput" placeholder="Поиск по операциям...">
-      <select class="filter-select" id="filterSelect">
-        <option value="all">Все категории</option>
-        <option value="income">Доходы</option>
-        <option value="fixed">Постоянные</option>
-        <option value="variable">Непостоянные</option>
-      </select>
-       <button class="btn btn-outline btn-sm" id="exportBtn" title="Экспорт в CSV">📤 CSV</button>
-       <button class="btn btn-outline btn-sm" id="importBtn" title="Импорт из CSV">📥 CSV</button>
-    </div>
-
-    <!-- Desktop Table (hidden on mobile) -->
-    <div class="table-container desktop-only">
-      <table>
-        <thead>
-          <tr>
-            <th style="width:44px;"></th>
-            <th class="sortable" data-sort="name">Название</th>
-            <th class="sortable" data-sort="date" style="width:120px;">Дата</th>
-            <th class="sortable" data-sort="category" style="width:120px;">Категория</th>
-            <th class="sortable" data-sort="amount" style="width:110px;">Сумма</th>
-            <th style="width:80px;"></th>
-          </tr>
-        </thead>
-        <tbody id="operationsBody"></tbody>
-      </table>
-    </div>
-
-    <!-- Mobile Cards (hidden on desktop) -->
-    <div class="mobile-ops-list mobile-only" id="mobileOpsList"></div>
-
-    <div class="empty-state" id="emptyState">
-      <span>📭</span>
-      <p>В этом цикле пока нет операций</p>
-    </div>
-  </div>
-
 </div>
 
-<!-- Edit Modal -->
+<!-- Edit Operation Modal -->
 <div class="modal-overlay" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
   <div class="modal">
-    <div class="modal-title" id="editModalTitle">✏️ Редактировать операцию</div>
+    <div class="modal-title" id="editModalTitle">
+      <svg class="icon"><use href="#icon-edit"></use></svg>
+      <span>Редактировать операцию</span>
+    </div>
     <div class="modal-field">
       <label for="editName">Название</label>
-      <input type="text" id="editName">
+      <input type="text" id="editName" class="form-input" required>
     </div>
     <div class="modal-field">
       <label for="editAmount">Сумма (₪)</label>
-      <input type="number" id="editAmount" step="0.01">
+      <input type="number" id="editAmount" class="form-input" step="0.01" min="0.01" required>
     </div>
     <div class="modal-field">
       <label for="editCategory">Категория</label>
-      <select id="editCategory">
+      <select id="editCategory" class="form-select">
         <option value="income">Доход</option>
         <option value="fixed">Постоянная трата</option>
         <option value="variable">Непостоянная трата</option>
@@ -280,150 +700,148 @@
   </div>
 </div>
 
-<!-- Confirm Delete Modal -->
-<div class="modal-overlay" id="confirmOverlay" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
-  <div class="modal">
-    <div class="modal-title" id="confirmTitle">Подтверждение удаления</div>
-    <p id="confirmText" style="font-size:0.9rem;color:var(--text-secondary);"></p>
-    <div class="modal-actions">
-      <button class="btn btn-outline" id="confirmNoBtn">Отмена</button>
-      <button class="btn btn-danger" id="confirmYesBtn">Удалить</button>
-    </div>
-  </div>
-</div>
-
-<!-- Categories Modal -->
-<div class="modal-overlay" id="categoriesModal" role="dialog" aria-modal="true">
-  <div class="modal">
-    <div class="modal-title">📂 Управление категориями</div>
-    <div class="modal-field">
-      <label for="newCategoryName">Название новой категории</label>
-      <input type="text" id="newCategoryName" placeholder="Например: Продукты, Транспорт...">
-    </div>
-    <div class="modal-field">
-      <label for="newCategoryColor">Цвет</label>
-      <input type="color" id="newCategoryColor" value="#8b5cf6">
-    </div>
-    <button class="btn btn-primary" id="addCategoryBtn" style="width:100%;margin-bottom:16px;">Добавить категорию</button>
-    <div id="categoriesList"></div>
-    <div class="modal-actions">
-      <button class="btn btn-outline" id="closeCategoriesBtn">Закрыть</button>
-    </div>
-  </div>
-</div>
-
 <!-- Goals Modal -->
-<div class="modal-overlay" id="goalsModal" role="dialog" aria-modal="true">
+<div class="modal-overlay" id="goalsModal" role="dialog" aria-modal="true" aria-labelledby="goalsModalTitle">
   <div class="modal">
-    <div class="modal-title">🎯 Добавить финансовую цель</div>
+    <div class="modal-title" id="goalsModalTitle">
+      <svg class="icon"><use href="#icon-goals"></use></svg>
+      <span>Добавить финансовую цель</span>
+    </div>
     <div class="modal-field">
       <label for="goalNameInput">Название цели</label>
-      <input type="text" id="goalNameInput" placeholder="Например: Отпуск, Машина...">
+      <input type="text" id="goalNameInput" class="form-input" placeholder="Например: Отпуск, Резервный фонд...">
     </div>
     <div class="modal-field">
       <label for="goalTargetInput">Целевая сумма (₪)</label>
-      <input type="number" id="goalTargetInput" placeholder="50000" step="100">
+      <input type="number" id="goalTargetInput" class="form-input" placeholder="50 000" step="100">
     </div>
     <div class="modal-field">
       <label for="goalCurrentInput">Уже накоплено (₪)</label>
-      <input type="number" id="goalCurrentInput" placeholder="0" step="100">
+      <input type="number" id="goalCurrentInput" class="form-input" placeholder="0" step="100">
     </div>
     <div class="modal-actions">
       <button class="btn btn-outline" id="closeGoalsBtn">Отмена</button>
-      <button class="btn btn-primary" id="saveGoalBtn">Добавить</button>
+      <button class="btn btn-primary" id="saveGoalBtn">Добавить цель</button>
     </div>
   </div>
 </div>
 
 <!-- Budget Limits Modal -->
-<div class="modal-overlay" id="budgetModal" role="dialog" aria-modal="true">
+<div class="modal-overlay" id="budgetModal" role="dialog" aria-modal="true" aria-labelledby="budgetModalTitle">
   <div class="modal">
-    <div class="modal-title">💰 Редактировать бюджетные лимиты</div>
-    <div id="budgetEditContainer"></div>
+    <div class="modal-title" id="budgetModalTitle">
+      <svg class="icon"><use href="#icon-edit"></use></svg>
+      <span>Редактировать бюджетные лимиты</span>
+    </div>
+    <p class="modal-desc">Укажите максимальные суммы расходов на месяц для контроля перерасхода.</p>
+    <div id="budgetEditContainer" class="budget-modal-list"></div>
     <div class="modal-actions">
       <button class="btn btn-outline" id="closeBudgetBtn">Отмена</button>
-      <button class="btn btn-primary" id="saveBudgetBtn">Сохранить</button>
+      <button class="btn btn-primary" id="saveBudgetBtn">Сохранить лимиты</button>
     </div>
   </div>
 </div>
 
 <!-- Recurring Transactions Modal -->
-<div class="modal-overlay" id="recurringModal" role="dialog" aria-modal="true">
+<div class="modal-overlay" id="recurringModal" role="dialog" aria-modal="true" aria-labelledby="recurringModalTitle">
   <div class="modal">
-    <div class="modal-title">🔄 Регулярные транзакции</div>
+    <div class="modal-title" id="recurringModalTitle">
+      <svg class="icon"><use href="#icon-refresh"></use></svg>
+      <span>Новая регулярная транзакция</span>
+    </div>
     <div class="modal-field">
       <label for="recNameInput">Название</label>
-      <input type="text" id="recNameInput" placeholder="Аренда, подписка...">
+      <input type="text" id="recNameInput" class="form-input" placeholder="Аренда, интернет, подписка...">
     </div>
     <div class="modal-field">
       <label for="recAmountInput">Сумма (₪)</label>
-      <input type="number" id="recAmountInput" placeholder="1000" step="0.01">
+      <input type="number" id="recAmountInput" class="form-input" placeholder="1000" step="0.01">
     </div>
     <div class="modal-field">
-      <label for="recDayInput">День месяца (1-28)</label>
-      <input type="number" id="recDayInput" placeholder="10" min="1" max="28">
+      <label for="recDayInput">День месяца списания (1-28)</label>
+      <input type="number" id="recDayInput" class="form-input" placeholder="10" min="1" max="28">
     </div>
     <div class="modal-field">
       <label for="recCategoryInput">Категория</label>
-      <select id="recCategoryInput">
+      <select id="recCategoryInput" class="form-select">
         <option value="fixed">Постоянная трата</option>
         <option value="variable">Непостоянная трата</option>
         <option value="income">Доход</option>
       </select>
     </div>
-    <button class="btn btn-primary" id="saveRecurringBtn" style="width:100%;margin-bottom:16px;">Добавить</button>
-    <div id="recurringList"></div>
     <div class="modal-actions">
-      <button class="btn btn-outline" id="closeRecurringBtn">Закрыть</button>
-    </div>
-  </div>
-</div>
-
-<!-- Hotkeys Help Modal -->
-<div class="modal-overlay" id="hotkeysModal" role="dialog" aria-modal="true">
-  <div class="modal">
-    <div class="modal-title">⌨️ Горячие клавиши</div>
-    <div class="hotkey-grid">
-      <div class="hotkey-row">
-        <span class="hotkey-key">Ctrl+N</span>
-        <span>Новый доход (фокус на поле)</span>
-      </div>
-      <div class="hotkey-row">
-        <span class="hotkey-key">Ctrl+F</span>
-        <span>Поиск</span>
-      </div>
-      <div class="hotkey-row">
-        <span class="hotkey-key">Escape</span>
-        <span>Закрыть модальные окна</span>
-      </div>
-      <div class="hotkey-row">
-        <span class="hotkey-key">?</span>
-        <span>Показать помощь</span>
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-primary" id="closeHotkeysBtn">Закрыть</button>
+      <button class="btn btn-outline" id="closeRecurringBtn">Отмена</button>
+      <button class="btn btn-primary" id="saveRecurringBtn">Добавить</button>
     </div>
   </div>
 </div>
 
 <!-- Annual Report Modal -->
-<div class="modal-overlay" id="reportModal" role="dialog" aria-modal="true">
-  <div class="modal" style="max-width:600px;">
-    <div class="modal-title">📊 Годовой отчёт</div>
-    <div class="form-row" style="margin-bottom:16px;">
-      <label for="reportYearSelect" style="font-size:0.85rem;font-weight:600;">Год:</label>
-      <select id="reportYearSelect" style="flex:1;"></select>
-      <button class="btn btn-primary btn-sm" id="generateReportBtn">Сгенерировать</button>
+<div class="modal-overlay" id="reportModal" role="dialog" aria-modal="true" aria-labelledby="reportModalTitle">
+  <div class="modal modal-lg">
+    <div class="modal-title" id="reportModalTitle">
+      <svg class="icon"><use href="#icon-bar-chart-2"></use></svg>
+      <span>Годовой финансовый отчёт</span>
     </div>
-    <div id="reportContent"></div>
+    <div class="report-year-toolbar">
+      <label for="reportYearSelect" class="form-label" style="margin:0;">Отчётный год:</label>
+      <select id="reportYearSelect" class="form-select" style="max-width:140px;"></select>
+      <button class="btn btn-primary btn-sm" id="generateReportBtn">Сформировать</button>
+    </div>
+    <div id="reportContent" class="report-content-wrap"></div>
     <div class="modal-actions">
       <button class="btn btn-outline" id="closeReportBtn">Закрыть</button>
     </div>
   </div>
 </div>
 
-<!-- Undo Snackbar -->
+<!-- Hotkeys Help Modal -->
+<div class="modal-overlay" id="hotkeysModal" role="dialog" aria-modal="true" aria-labelledby="hotkeysModalTitle">
+  <div class="modal">
+    <div class="modal-title" id="hotkeysModalTitle">
+      <svg class="icon"><use href="#icon-keyboard"></use></svg>
+      <span>Горячие клавиши</span>
+    </div>
+    <div class="hotkey-grid">
+      <div class="hotkey-row">
+        <span class="hotkey-key">Ctrl+N</span>
+        <span>Новая операция</span>
+      </div>
+      <div class="hotkey-row">
+        <span class="hotkey-key">Ctrl+F</span>
+        <span>Поиск по операциям</span>
+      </div>
+      <div class="hotkey-row">
+        <span class="hotkey-key">Escape</span>
+        <span>Закрыть диалог</span>
+      </div>
+      <div class="hotkey-row">
+        <span class="hotkey-key">?</span>
+        <span>Справка</span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="closeHotkeysBtn">Понятно</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal (Fallback) -->
+<div class="modal-overlay" id="confirmOverlay" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+  <div class="modal">
+    <div class="modal-title" id="confirmTitle">Подтверждение действия</div>
+    <p id="confirmText" class="modal-desc"></p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="confirmNoBtn">Отмена</button>
+      <button class="btn btn-danger" id="confirmYesBtn">Продолжить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Dynamic Toast Notification Container -->
+<div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+<!-- Old Undo Snackbar (preserved for backwards compatibility) -->
 <div class="snackbar" id="undoSnackbar">
   <span class="snackbar-text"></span>
   <button class="btn-undo" id="undoBtn">Отменить</button>

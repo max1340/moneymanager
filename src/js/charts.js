@@ -1,81 +1,99 @@
 // ============================================
 // Financy PRO — Charts & Visualization
+// Enhanced UX: Donut with expense total & shares,
+// Trend with short Y-axis, tooltips & larger points
 // ============================================
 
 import { state } from './state.js';
 import { calcCategoryExpenses, calcTotalIncome, calcTotalExpenses } from './calculations.js';
-import { cycleLabel } from './utils.js';
+import { cycleLabel, formatMoney, formatShortMoney, escapeHtml } from './utils.js';
 
 // ---- Donut Chart ----
 function renderDonutChart(cycleData) {
   const categories = calcCategoryExpenses(cycleData);
   const total = categories.reduce((sum, c) => sum + c.amount, 0);
   const donutCenter = document.getElementById('donutCenterText');
-  const seg1 = document.getElementById('donutSegment1');
-  const seg2 = document.getElementById('donutSegment2');
+  const donutCenterSub = document.getElementById('donutCenterSub');
+  const donutSegmentsContainer = document.getElementById('donutSegmentsContainer');
   const donutLegend = document.querySelector('.donut-legend');
 
-  const circumference = 2 * Math.PI * 60;
+  if (!donutLegend) return;
+
+  const radius = 60;
+  const circumference = 2 * Math.PI * radius;
 
   if (total === 0 || categories.length === 0) {
-    seg1.setAttribute('stroke-dasharray', '0 ' + circumference);
-    seg2.setAttribute('stroke-dasharray', '0 ' + circumference);
-    donutCenter.textContent = '0%';
+    if (donutSegmentsContainer) {
+      donutSegmentsContainer.innerHTML = `
+        <circle cx="80" cy="80" r="${radius}" fill="none" stroke="var(--border)" stroke-width="18" />
+      `;
+    }
+    if (donutCenter) donutCenter.textContent = '0 ₪';
+    if (donutCenterSub) donutCenterSub.textContent = 'Расходов нет';
     donutLegend.innerHTML = `
       <div class="legend-item">
         <div class="color-box" style="background:var(--chart-color-1);"></div>
-        <span>Постоянные траты</span>
-        <span style="font-weight:600;">0</span>
+        <span class="legend-name">Постоянные</span>
+        <span class="legend-value">0,00 ₪ (0%)</span>
       </div>
       <div class="legend-item">
         <div class="color-box" style="background:var(--chart-color-2);"></div>
-        <span>Непостоянные траты</span>
-        <span style="font-weight:600;">0</span>
+        <span class="legend-name">Непостоянные</span>
+        <span class="legend-value">0,00 ₪ (0%)</span>
       </div>
     `;
     return;
   }
 
-  // We'll show up to 2 segments on the donut, with the rest combined
-  const mainCategories = categories.slice(0, 2);
-  const others = categories.slice(2);
-  const otherTotal = others.reduce((sum, c) => sum + c.amount, 0);
+  // Generate SVG segments
+  let accumulatedPercent = 0;
+  let segmentsHtml = `<circle cx="80" cy="80" r="${radius}" fill="none" stroke="var(--border)" stroke-width="18" />`;
 
-  if (otherTotal > 0) {
-    mainCategories.push({ id: 'other', name: 'Прочее', amount: otherTotal, color: '#94a3b8' });
-  }
-
-  const ratio1 = mainCategories[0] ? mainCategories[0].amount / total : 0;
-  const ratio2 = mainCategories[1] ? mainCategories[1].amount / total : 0;
-
-  const len1 = ratio1 * circumference;
-  const len2 = ratio2 * circumference;
-
-  seg1.setAttribute('stroke-dasharray', len1 + ' ' + (circumference - len1));
-  seg2.setAttribute('stroke-dasharray', len2 + ' ' + (circumference - len2));
-
-  const income = calcTotalIncome(cycleData);
-  const expenses = calcTotalExpenses(cycleData);
-  const pct = income > 0 ? (expenses / income * 100) : 0;
-  donutCenter.textContent = pct.toFixed(0) + '%';
-
-  // Build legend
-  let legendHTML = '';
   const colorMap = {
     fixed: 'var(--chart-color-1)',
     variable: 'var(--chart-color-2)',
-    other: '#94a3b8'
   };
   state.customCategories.forEach(c => { colorMap[c.id] = c.color; });
 
   categories.forEach(cat => {
-    const color = colorMap[cat.id] || cat.color;
-    const amountText = cat.amount.toFixed(0) + ' ₪';
+    const share = cat.amount / total;
+    const strokeDash = share * circumference;
+    const strokeOffset = -(accumulatedPercent * circumference);
+    const color = colorMap[cat.id] || cat.color || 'var(--chart-color-1)';
+
+    segmentsHtml += `
+      <circle cx="80" cy="80" r="${radius}" fill="none" stroke="${color}" stroke-width="18"
+        stroke-dasharray="${strokeDash} ${circumference - strokeDash}"
+        stroke-dashoffset="${strokeOffset}"
+        transform="rotate(-90 80 80)"
+        style="transition: stroke-dasharray 0.4s ease, stroke-dashoffset 0.4s ease;" />
+    `;
+    accumulatedPercent += share;
+  });
+
+  if (donutSegmentsContainer) {
+    donutSegmentsContainer.innerHTML = segmentsHtml;
+  }
+
+  if (donutCenter) {
+    donutCenter.textContent = formatMoney(total);
+  }
+  if (donutCenterSub) {
+    donutCenterSub.textContent = 'Всего расходов';
+  }
+
+  // Build legend with amount and share percentage
+  let legendHTML = '';
+  categories.forEach(cat => {
+    const color = colorMap[cat.id] || cat.color || 'var(--chart-color-1)';
+    const sharePct = ((cat.amount / total) * 100).toFixed(0);
+    const amountStr = formatMoney(cat.amount);
+
     legendHTML += `
       <div class="legend-item">
         <div class="color-box" style="background:${color};"></div>
-        <span>${cat.name}</span>
-        <span style="font-weight:600;">${amountText}</span>
+        <span class="legend-name">${escapeHtml(cat.name)}</span>
+        <span class="legend-value">${amountStr} <small class="legend-share">(${sharePct}%)</small></span>
       </div>
     `;
   });
@@ -83,14 +101,19 @@ function renderDonutChart(cycleData) {
   donutLegend.innerHTML = legendHTML;
 }
 
-// ---- Trend Chart (Line chart using SVG) ----
+// ---- Trend Chart (Line chart using SVG with tooltips & formatted Y-axis) ----
 function renderTrendChart() {
   const wrapper = document.getElementById('trendChartWrapper');
   if (!wrapper) return;
 
   const cycleKeys = Object.keys(state.cycles).sort();
   if (cycleKeys.length < 2) {
-    wrapper.innerHTML = '<div class="empty-state" style="padding:20px;"><p>Для графика трендов нужно минимум 2 цикла данных</p></div>';
+    wrapper.innerHTML = `
+      <div class="empty-state" style="padding:24px;">
+        <svg class="empty-icon"><use href="#icon-bar-chart-2"></use></svg>
+        <p>Для графика динамики нужно минимум 2 цикла данных</p>
+      </div>
+    `;
     return;
   }
 
@@ -98,16 +121,17 @@ function renderTrendChart() {
     const cd = state.cycles[key];
     return {
       key,
+      fullLabel: cycleLabel(key),
       label: cycleLabel(key).split(' ')[0],
       income: calcTotalIncome(cd),
       expenses: calcTotalExpenses(cd)
     };
   });
 
-  const maxVal = Math.max(...data.map(d => Math.max(d.income, d.expenses)), 1);
-  const padding = { top: 20, right: 20, bottom: 30, left: 50 };
-  const width = Math.max(300, data.length * 80);
-  const height = 200;
+  const maxVal = Math.max(...data.map(d => Math.max(d.income, d.expenses)), 1000);
+  const padding = { top: 25, right: 20, bottom: 35, left: 60 };
+  const width = Math.max(340, data.length * 80);
+  const height = 220;
   const chartW = width - padding.left - padding.right;
   const chartH = height - padding.top - padding.bottom;
 
@@ -119,39 +143,56 @@ function renderTrendChart() {
     const x = scaleX(i);
     const yIncome = scaleY(d.income);
     const yExpenses = scaleY(d.expenses);
-    paths.income += (i === 0 ? 'M' : 'L') + x + ',' + yIncome;
-    paths.expenses += (i === 0 ? 'M' : 'L') + x + ',' + yExpenses;
+    paths.income += (i === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + yIncome.toFixed(1);
+    paths.expenses += (i === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + yExpenses.toFixed(1);
   });
 
-  // Y-axis labels
+  // Y-axis labels with formatShortMoney ("12 тыс.")
   let yLabels = '';
   const steps = 4;
   for (let i = 0; i <= steps; i++) {
     const val = (maxVal / steps) * i;
     const y = scaleY(val);
     yLabels += `
-      <text x="${padding.left - 8}" y="${y + 3}" text-anchor="end">${Math.round(val).toLocaleString()}</text>
-      <line x1="${padding.left}" y1="${y}" x2="${width - padding.right}" y2="${y}" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,3"/>
+      <text x="${padding.left - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" class="chart-axis-text">${formatShortMoney(val)}</text>
+      <line x1="${padding.left}" y1="${y.toFixed(1)}" x2="${(width - padding.right).toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,3"/>
     `;
   }
 
   // X-axis labels
   let xLabels = '';
   data.forEach((d, i) => {
-    xLabels += `<text x="${scaleX(i)}" y="${height - 5}" text-anchor="middle">${d.label}</text>`;
+    xLabels += `<text x="${scaleX(i).toFixed(1)}" y="${height - 10}" text-anchor="middle" class="chart-axis-text">${escapeHtml(d.label)}</text>`;
+  });
+
+  // Interactive points with tooltip data
+  let pointsHtml = '';
+  data.forEach((d, i) => {
+    const x = scaleX(i).toFixed(1);
+    const yInc = scaleY(d.income).toFixed(1);
+    const yExp = scaleY(d.expenses).toFixed(1);
+
+    pointsHtml += `
+      <circle cx="${x}" cy="${yInc}" r="6" fill="var(--chart-color-3)" stroke="var(--surface)" stroke-width="2.5" class="chart-point"
+        tabindex="0" role="button" aria-label="Доходы ${d.fullLabel}: ${formatMoney(d.income)}"
+        data-title="${escapeHtml(d.fullLabel)}" data-type="Доходы" data-val="${formatMoney(d.income)}" />
+      <circle cx="${x}" cy="${yExp}" r="6" fill="var(--chart-color-4)" stroke="var(--surface)" stroke-width="2.5" class="chart-point"
+        tabindex="0" role="button" aria-label="Расходы ${d.fullLabel}: ${formatMoney(d.expenses)}"
+        data-title="${escapeHtml(d.fullLabel)}" data-type="Расходы" data-val="${formatMoney(d.expenses)}" />
+    `;
   });
 
   wrapper.innerHTML = `
-    <svg class="trend-chart-svg" viewBox="0 0 ${width} ${height}">
-      ${yLabels}
-      ${xLabels}
-      <path d="${paths.income}" fill="none" stroke="var(--chart-color-3)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="${paths.expenses}" fill="none" stroke="var(--chart-color-4)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-      ${data.map((d, i) => `
-        <circle cx="${scaleX(i)}" cy="${scaleY(d.income)}" r="4" fill="var(--chart-color-3)" stroke="var(--surface)" stroke-width="2"/>
-        <circle cx="${scaleX(i)}" cy="${scaleY(d.expenses)}" r="4" fill="var(--chart-color-4)" stroke="var(--surface)" stroke-width="2"/>
-      `).join('')}
-    </svg>
+    <div class="trend-chart-container">
+      <svg class="trend-chart-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">
+        ${yLabels}
+        ${xLabels}
+        <path d="${paths.income}" fill="none" stroke="var(--chart-color-3)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="${paths.expenses}" fill="none" stroke="var(--chart-color-4)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        ${pointsHtml}
+      </svg>
+      <div id="chartTooltip" class="chart-tooltip" style="display:none;"></div>
+    </div>
     <div class="trend-legend">
       <div class="trend-legend-item">
         <div class="trend-legend-dot" style="background:var(--chart-color-3);"></div>
@@ -163,6 +204,58 @@ function renderTrendChart() {
       </div>
     </div>
   `;
+
+  // Attach tooltips
+  setupChartTooltips(wrapper);
+}
+
+function setupChartTooltips(wrapper) {
+  const tooltip = wrapper.querySelector('#chartTooltip');
+  if (!tooltip) return;
+
+  wrapper.querySelectorAll('.chart-point').forEach(pt => {
+    const show = (e) => {
+      const title = pt.dataset.title;
+      const type = pt.dataset.type;
+      const val = pt.dataset.val;
+      const isIncome = type === 'Доходы';
+      const color = isIncome ? 'var(--success)' : 'var(--danger)';
+
+      tooltip.innerHTML = `
+        <div class="chart-tooltip-title">${title}</div>
+        <div class="chart-tooltip-row">
+          <span style="color:${color};font-weight:600;">${type}:</span>
+          <strong>${val}</strong>
+        </div>
+      `;
+      tooltip.style.display = 'block';
+
+      const rect = pt.getBoundingClientRect();
+      const wrapRect = wrapper.getBoundingClientRect();
+      const left = rect.left - wrapRect.left + rect.width / 2;
+      const top = rect.top - wrapRect.top - 10;
+
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
+    };
+
+    const hide = () => {
+      tooltip.style.display = 'none';
+    };
+
+    pt.addEventListener('mouseenter', show);
+    pt.addEventListener('mouseleave', hide);
+    pt.addEventListener('focus', show);
+    pt.addEventListener('blur', hide);
+    pt.addEventListener('touchstart', (e) => {
+      e.stopPropagation();
+      show(e);
+    }, { passive: true });
+  });
+
+  document.addEventListener('touchstart', () => {
+    if (tooltip) tooltip.style.display = 'none';
+  }, { passive: true });
 }
 
 export { renderDonutChart, renderTrendChart };
