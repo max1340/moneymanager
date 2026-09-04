@@ -2,3 +2,6 @@ node_modules/
 dist/
 .env
 *.local
+financy_db.json
+financy_backup_*.json
+financy_export_*.csv
