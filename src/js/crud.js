@@ -7,9 +7,11 @@ import { markDirty } from './firebase-db.js';
 import { uuid } from './utils.js';
 
 // ---- Operations ----
-function addOperation(category, name, date, amount) {
+function addOperation(category, name, date, amount, subcategory = '') {
   const cycleData = getCurrentCycleData();
   const op = { id: uuid(), name: name.trim(), date: date, amount: Math.abs(amount) };
+  if (subcategory) op.subcategory = subcategory;
+  if (!cycleData[category]) cycleData[category] = [];
   cycleData[category].push(op);
   markDirty();
   notifyListeners();
@@ -18,6 +20,7 @@ function addOperation(category, name, date, amount) {
 
 function deleteOperation(category, id) {
   const cycleData = getCurrentCycleData();
+  if (!cycleData[category]) return null;
   const index = cycleData[category].findIndex(t => t.id === id);
   if (index === -1) return null;
   const removed = cycleData[category][index];
@@ -27,24 +30,25 @@ function deleteOperation(category, id) {
   return removed;
 }
 
-function updateOperation(category, id, newName, newAmount, newCategory) {
+function updateOperation(category, id, newName, newAmount, newCategory, subcategory = '') {
   const cycleData = getCurrentCycleData();
   let op = null;
   // Find and remove from old category
-  cycleData[category] = cycleData[category].filter(t => {
-    if (t.id === id) { op = { ...t }; return false; }
-    return true;
-  });
+  if (cycleData[category]) {
+    cycleData[category] = cycleData[category].filter(t => {
+      if (t.id === id) { op = { ...t }; return false; }
+      return true;
+    });
+  }
   if (!op) return null;
 
   op.name = newName.trim();
   op.amount = Math.abs(newAmount);
+  if (subcategory) op.subcategory = subcategory;
 
-  if (newCategory !== category) {
-    getCurrentCycleData()[newCategory].push(op);
-  } else {
-    cycleData[category].push(op);
-  }
+  const targetCat = newCategory || category;
+  if (!getCurrentCycleData()[targetCat]) getCurrentCycleData()[targetCat] = [];
+  getCurrentCycleData()[targetCat].push(op);
 
   markDirty();
   notifyListeners();
@@ -137,20 +141,40 @@ function setBudgetLimit(categoryId, limit) {
 }
 
 // ---- Goals ----
-function addGoal(name, target, current = 0) {
-  const goal = { id: uuid(), name: name.trim(), target: Math.abs(target), current: Math.abs(current) };
+function addGoal(name, target, current = 0, targetDate = '') {
+  const goal = {
+    id: uuid(),
+    name: name.trim(),
+    target: Math.abs(target),
+    current: Math.abs(current),
+    targetDate: targetDate || ''
+  };
   state.goals.push(goal);
   markDirty();
   notifyListeners();
   return goal;
 }
 
-function updateGoal(id, current) {
+function updateGoal(id, name, target, current, targetDate) {
   const goal = state.goals.find(g => g.id === id);
-  if (!goal) return;
-  goal.current = Math.abs(current);
+  if (!goal) return null;
+  if (name !== undefined) goal.name = name.trim();
+  if (target !== undefined) goal.target = Math.abs(target);
+  if (current !== undefined) goal.current = Math.abs(current);
+  if (targetDate !== undefined) goal.targetDate = targetDate;
   markDirty();
   notifyListeners();
+  return goal;
+}
+
+function depositToGoal(id, depositAmount) {
+  const goal = state.goals.find(g => g.id === id);
+  if (!goal) return null;
+  const dep = Math.abs(depositAmount);
+  goal.current = Math.min(goal.target, goal.current + dep);
+  markDirty();
+  notifyListeners();
+  return goal;
 }
 
 function deleteGoal(id) {
@@ -160,7 +184,7 @@ function deleteGoal(id) {
 }
 
 // ---- Recurring Transactions ----
-function addRecurringTransaction(name, amount, day, category) {
+function addRecurringTransaction(name, amount, day, category, auto = true) {
   const nextDate = calculateNextDate(day);
   const rt = {
     id: uuid(),
@@ -168,12 +192,22 @@ function addRecurringTransaction(name, amount, day, category) {
     amount: Math.abs(amount),
     day: Math.min(Math.max(1, day), 28),
     category,
+    auto: auto !== false,
     nextDate
   };
   state.recurringTransactions.push(rt);
   markDirty();
   notifyListeners();
   return rt;
+}
+
+function toggleRecurringAuto(id) {
+  const rt = state.recurringTransactions.find(r => r.id === id);
+  if (!rt) return false;
+  rt.auto = rt.auto === false ? true : false;
+  markDirty();
+  notifyListeners();
+  return rt.auto;
 }
 
 function deleteRecurringTransaction(id) {
@@ -198,6 +232,7 @@ function processRecurringTransactions() {
   let processed = 0;
 
   state.recurringTransactions.forEach(rt => {
+    if (rt.auto === false) return; // skip if disabled by user
     if (rt.nextDate <= today) {
       // Add operation
       const cycleData = getCurrentCycleData();
@@ -270,6 +305,7 @@ function applyTemplate() {
 
   const currentData = getCurrentCycleData();
   let copied = 0;
+  const addedIds = [];
 
   prevData.fixed.forEach(op => {
     const oldDate = new Date(op.date + 'T00:00:00');
@@ -283,12 +319,14 @@ function applyTemplate() {
     );
     if (exists) return;
 
+    const newId = uuid();
     currentData.fixed.push({
-      id: uuid(),
+      id: newId,
       name: op.name,
       date: dateStr,
       amount: op.amount
     });
+    addedIds.push(newId);
     copied++;
   });
 
@@ -297,7 +335,20 @@ function applyTemplate() {
     notifyListeners();
   }
 
-  return { copied };
+  return { copied, addedIds };
+}
+
+function undoTemplate(addedIds) {
+  if (!Array.isArray(addedIds) || addedIds.length === 0) return 0;
+  const currentData = getCurrentCycleData();
+  const before = currentData.fixed.length;
+  currentData.fixed = currentData.fixed.filter(t => !addedIds.includes(t.id));
+  const removed = before - currentData.fixed.length;
+  if (removed > 0) {
+    markDirty();
+    notifyListeners();
+  }
+  return removed;
 }
 
 export {
@@ -313,12 +364,15 @@ export {
   setBudgetLimit,
   addGoal,
   updateGoal,
+  depositToGoal,
   deleteGoal,
   addRecurringTransaction,
+  toggleRecurringAuto,
   deleteRecurringTransaction,
   processRecurringTransactions,
   addTag,
   removeTag,
   changeCycle,
-  applyTemplate
+  applyTemplate,
+  undoTemplate
 };

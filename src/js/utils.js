@@ -2,6 +2,8 @@
 // Financy PRO — Utility Functions
 // ============================================
 
+const CURRENCY = '₪';
+
 const CATEGORY_COLORS = [
   '#2a7de1', '#f59e0b', '#22c55e', '#ef4444',
   '#8b5cf6', '#ec4899', '#14b8a6', '#f97316',
@@ -22,9 +24,28 @@ function formatDate(d) {
   return `${day}.${month}.${year}`;
 }
 
+function formatDayHeader(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  if (isNaN(d.getTime())) return dateStr;
+  const options = { day: 'numeric', month: 'long', year: 'numeric', weekday: 'short' };
+  const formatted = d.toLocaleDateString('ru-RU', options);
+  // Capitalize first letter
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+}
+
 function toInputDate(dateStr) {
   if (!dateStr) return new Date().toISOString().split('T')[0];
   return dateStr;
+}
+
+function toIsoDate(ddmmyyyy) {
+  if (!ddmmyyyy) return '';
+  const parts = ddmmyyyy.trim().split('.');
+  if (parts.length === 3 && parts[0].length === 2 && parts[1].length === 2 && parts[2].length === 4) {
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+  }
+  return '';
 }
 
 function getInitials(name) {
@@ -49,13 +70,33 @@ function cycleRange(cycleKey) {
   const [year, month] = cycleKey.split('-').map(Number);
   const start = new Date(year, month - 1, 10);
   const end = new Date(year, month, 9);
-  const fmt = (d) => {
+  const fmtDate = (d) => {
     const dd = String(d.getDate()).padStart(2, '0');
     const mm = String(d.getMonth() + 1).padStart(2, '0');
     const yyyy = d.getFullYear();
     return `${dd}.${mm}.${yyyy}`;
   };
-  return `${fmt(start)} — ${fmt(end)}`;
+  return `${fmtDate(start)} — ${fmtDate(end)}`;
+}
+
+function cycleShortRange(cycleKey) {
+  if (!cycleKey) return '';
+  const [year, month] = cycleKey.split('-').map(Number);
+  const start = new Date(year, month - 1, 10);
+  const end = new Date(year, month, 9);
+  const fmtShort = (d) => {
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    return `${dd}.${mm}`;
+  };
+  return `${fmtShort(start)}–${fmtShort(end)}`;
+}
+
+function cycleExplicitLabel(cycleKey) {
+  if (!cycleKey) return '';
+  const range = cycleShortRange(cycleKey);
+  const monthName = cycleLabel(cycleKey);
+  return `Цикл: ${range} (${monthName})`;
 }
 
 function currentCycleKey() {
@@ -107,13 +148,13 @@ function getCategoryColor(index) {
 }
 
 function escapeHtml(str) {
+  if (!str) return '';
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
 }
 
 function pluralize(count, forms) {
-  // forms: ['операция', 'операции', 'операций']
   const n = Math.abs(count) % 100;
   const n1 = n % 10;
   if (n > 10 && n < 20) return forms[2];
@@ -122,12 +163,15 @@ function pluralize(count, forms) {
   return forms[2];
 }
 
-function formatMoney(n) {
-  return n.toLocaleString('ru-RU', {
+function fmt(amount) {
+  const num = typeof amount === 'number' && !isNaN(amount) ? amount : 0;
+  return `${num.toLocaleString('ru-RU', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }) + ' ₪';
+  })} ${CURRENCY}`;
 }
+
+const formatMoney = fmt;
 
 function formatShortMoney(n) {
   const abs = Math.abs(n);
@@ -136,13 +180,47 @@ function formatShortMoney(n) {
   return n.toLocaleString('ru-RU', { maximumFractionDigits: 0 });
 }
 
+function groupOperationsByDay(operations) {
+  if (!Array.isArray(operations) || operations.length === 0) return [];
+
+  // Group by date string (YYYY-MM-DD)
+  const map = new Map();
+  operations.forEach(op => {
+    const d = op.date || '1970-01-01';
+    if (!map.has(d)) {
+      map.set(d, {
+        date: d,
+        items: [],
+        totalIncome: 0,
+        totalExpense: 0,
+      });
+    }
+    const group = map.get(d);
+    group.items.push(op);
+    if (op.category === 'income') {
+      group.totalIncome += op.amount;
+    } else {
+      group.totalExpense += op.amount;
+    }
+  });
+
+  // Sort dates descending
+  const sorted = Array.from(map.values()).sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  return sorted;
+}
+
 export {
+  CURRENCY,
   uuid,
   formatDate,
+  formatDayHeader,
   toInputDate,
+  toIsoDate,
   getInitials,
   cycleLabel,
   cycleRange,
+  cycleShortRange,
+  cycleExplicitLabel,
   currentCycleKey,
   nextCycleKey,
   previousCycleKey,
@@ -150,7 +228,9 @@ export {
   getCategoryColor,
   escapeHtml,
   pluralize,
+  fmt,
   formatMoney,
   formatShortMoney,
+  groupOperationsByDay,
   CATEGORY_COLORS
 };

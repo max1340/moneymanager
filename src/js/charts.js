@@ -6,7 +6,7 @@
 
 import { state } from './state.js';
 import { calcCategoryExpenses, calcTotalIncome, calcTotalExpenses } from './calculations.js';
-import { cycleLabel, formatMoney, formatShortMoney, escapeHtml } from './utils.js';
+import { cycleLabel, fmt, formatShortMoney, escapeHtml } from './utils.js';
 
 // ---- Donut Chart ----
 function renderDonutChart(cycleData) {
@@ -76,7 +76,7 @@ function renderDonutChart(cycleData) {
   }
 
   if (donutCenter) {
-    donutCenter.textContent = formatMoney(total);
+    donutCenter.textContent = fmt(total);
   }
   if (donutCenterSub) {
     donutCenterSub.textContent = 'Всего расходов';
@@ -87,7 +87,7 @@ function renderDonutChart(cycleData) {
   categories.forEach(cat => {
     const color = colorMap[cat.id] || cat.color || 'var(--chart-color-1)';
     const sharePct = ((cat.amount / total) * 100).toFixed(0);
-    const amountStr = formatMoney(cat.amount);
+    const amountStr = fmt(cat.amount);
 
     legendHTML += `
       <div class="legend-item">
@@ -174,11 +174,11 @@ function renderTrendChart() {
 
     pointsHtml += `
       <circle cx="${x}" cy="${yInc}" r="6" fill="var(--chart-color-3)" stroke="var(--surface)" stroke-width="2.5" class="chart-point"
-        tabindex="0" role="button" aria-label="Доходы ${d.fullLabel}: ${formatMoney(d.income)}"
-        data-title="${escapeHtml(d.fullLabel)}" data-type="Доходы" data-val="${formatMoney(d.income)}" />
+        tabindex="0" role="button" aria-label="Доходы ${d.fullLabel}: ${fmt(d.income)}"
+        data-title="${escapeHtml(d.fullLabel)}" data-type="Доходы" data-val="${fmt(d.income)}" />
       <circle cx="${x}" cy="${yExp}" r="6" fill="var(--chart-color-4)" stroke="var(--surface)" stroke-width="2.5" class="chart-point"
-        tabindex="0" role="button" aria-label="Расходы ${d.fullLabel}: ${formatMoney(d.expenses)}"
-        data-title="${escapeHtml(d.fullLabel)}" data-type="Расходы" data-val="${formatMoney(d.expenses)}" />
+        tabindex="0" role="button" aria-label="Расходы ${d.fullLabel}: ${fmt(d.expenses)}"
+        data-title="${escapeHtml(d.fullLabel)}" data-type="Расходы" data-val="${fmt(d.expenses)}" />
     `;
   });
 

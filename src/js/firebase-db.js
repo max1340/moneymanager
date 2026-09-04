@@ -241,6 +241,7 @@ function exportToJSON() {
   a.href = url;
   a.download = `financy_backup_${new Date().toISOString().split('T')[0]}.json`;
   a.click();
+  localStorage.setItem('financy_last_backup_time', Date.now().toString());
   URL.revokeObjectURL(url);
 }
 

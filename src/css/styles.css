@@ -192,6 +192,7 @@ body {
   outline: none;
   transition: border-color var(--transition);
   min-height: 40px;
+  max-width: 320px;
 }
 
 .cycle-selector select:focus-visible {
@@ -258,6 +259,7 @@ body {
   border-radius: 20px;
   transition: all var(--transition);
   min-height: 36px;
+  cursor: default;
 }
 
 .sync-badge.connecting {
@@ -282,11 +284,33 @@ body {
   position: relative;
 }
 
+.reminder-badge-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--danger);
+  box-shadow: 0 0 0 2px var(--surface);
+}
+
+.badge-reminder {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--danger);
+  background: var(--danger-bg);
+  border: 1px solid var(--danger);
+  border-radius: 10px;
+  padding: 1px 6px;
+  margin-left: auto;
+}
+
 .overflow-dropdown {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  min-width: 220px;
+  min-width: 240px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -409,6 +433,7 @@ body {
 }
 
 .btn-icon {
+  position: relative;
   width: 44px;
   height: 44px;
   padding: 0;
@@ -472,6 +497,14 @@ body {
 
 .overview-grid .full-width {
   grid-column: 1 / -1;
+}
+
+/* Operations 2-Column Grid on Desktop (>=768px) */
+.operations-layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 20px;
+  align-items: start;
 }
 
 /* ============================================
@@ -833,8 +866,8 @@ body {
 /* Fields Grid */
 .form-fields-grid {
   display: flex;
+  flex-direction: column;
   gap: 12px;
-  flex-wrap: wrap;
 }
 
 .form-group {
@@ -842,10 +875,6 @@ body {
   flex-direction: column;
   gap: 6px;
 }
-
-.form-group.flex-2 { flex: 2 1 200px; }
-.form-group.flex-1 { flex: 1 1 140px; }
-.form-group.flex-color { width: 60px; }
 
 .form-label {
   font-size: 0.75rem;
@@ -868,6 +897,46 @@ body {
 
 .form-input:focus-visible, .form-select:focus-visible {
   border-color: var(--primary);
+}
+
+/* Date input with picker addon button */
+.date-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.date-mask-input {
+  padding-right: 48px;
+}
+
+.date-picker-btn {
+  position: absolute;
+  right: 2px;
+  width: 42px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  border-radius: var(--radius-xs);
+  transition: all var(--transition);
+}
+
+.date-picker-btn:hover {
+  color: var(--primary);
+  background: var(--surface-hover);
+}
+
+.sr-only-picker {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
 }
 
 .form-submit-row {
@@ -894,17 +963,37 @@ body {
   gap: 8px;
 }
 
-/* Period Summary Bar */
+/* Sticky Period Summary Bar */
 .period-summary-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 10px 14px;
-  background: var(--bg);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   margin-bottom: 14px;
   flex-wrap: wrap;
+  box-shadow: var(--shadow-sm);
+}
+
+.sticky-summary {
+  position: sticky;
+  top: 60px;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+}
+
+.period-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 20px;
+  white-space: nowrap;
 }
 
 .summary-chip {
@@ -914,7 +1003,7 @@ body {
   font-size: 0.8125rem;
   padding: 4px 10px;
   border-radius: var(--radius-xs);
-  background: var(--surface);
+  background: var(--bg);
   border: 1px solid var(--border-light);
 }
 
@@ -937,7 +1026,7 @@ body {
 
 .search-input-wrap {
   position: relative;
-  flex: 1 1 200px;
+  flex: 1 1 180px;
 }
 
 .search-input-wrap .search-icon {
@@ -994,8 +1083,52 @@ body {
   min-height: 44px;
 }
 
-/* Operations List */
+/* Operations List Grouped By Day */
 .operations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.journal-day-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.journal-day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 12px;
+  background: var(--bg);
+  border-radius: var(--radius-xs);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.day-date {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.day-summary {
+  display: flex;
+  gap: 10px;
+  font-size: 0.75rem;
+}
+
+.day-inc {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.day-exp {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.journal-day-items {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -1127,15 +1260,16 @@ body {
    ============================================ */
 .goals-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
 }
 
 .goal-card {
-  padding: 16px;
+  padding: 18px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--bg);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -1149,20 +1283,48 @@ body {
 }
 
 .goal-name {
-  font-size: 0.9375rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 700;
   color: var(--text);
 }
 
+.goal-target-date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.goal-actions {
+  display: flex;
+  gap: 6px;
+}
+
 .goal-amount {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--text-secondary);
   font-weight: 600;
+}
+
+.goal-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.goal-rec-deposit {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: var(--primary-light);
+  padding: 4px 8px;
+  border-radius: var(--radius-xs);
 }
 
 .goal-progress-text {
   font-size: 0.75rem;
   color: var(--text-muted);
+  font-weight: 600;
 }
 
 /* ============================================
@@ -1259,10 +1421,100 @@ body {
   margin-right: 8px;
 }
 
+/* Recurring Transactions with Auto Toggle Switch */
 .recurring-list-wrap {
   display: flex;
   flex-direction: column;
+  gap: 10px;
+}
+
+.recurring-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.recurring-info {
+  flex: 1;
+  min-width: 160px;
+}
+
+.recurring-name {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--text);
+}
+
+.recurring-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.recurring-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Toggle Switch */
+.toggle-switch-label {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  user-select: none;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: var(--border);
+  transition: 0.2s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.2s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--primary);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
 }
 
 .settings-actions-row {
@@ -1495,7 +1747,7 @@ body {
   gap: 8px;
   pointer-events: none;
   width: calc(100% - 32px);
-  max-width: 420px;
+  max-width: 440px;
 }
 
 .toast {
@@ -1544,6 +1796,7 @@ body {
   border-radius: var(--radius-xs);
   transition: background var(--transition);
   min-height: 36px;
+  white-space: nowrap;
 }
 
 .toast-action-btn:hover {
@@ -1706,8 +1959,8 @@ body {
 /* ============================================
    Responsive Breakpoints
    ============================================ */
-@media (max-width: 1024px) {
-  .overview-grid {
+@media (max-width: 900px) {
+  .operations-layout {
     grid-template-columns: 1fr;
   }
 }
@@ -1759,16 +2012,6 @@ body {
   .chart-container {
     flex-direction: column;
     align-items: center;
-  }
-
-  /* Forms */
-  .form-fields-grid {
-    flex-direction: column;
-  }
-
-  .form-group.flex-2, .form-group.flex-1 {
-    flex: 1 1 100%;
-    width: 100%;
   }
 
   /* Modals: turn into Bottom Sheet on mobile */
