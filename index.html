@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Financy PRO</title>
+<link rel="stylesheet" href="src/css/styles.css">
+<meta name="theme-color" content="#2a7de1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Financy PRO">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="src/icons/icon-192.png">
+<link rel="manifest" href="src/manifest.json">
+</head>
+<body>
+
+<!-- Setup Overlay (First Run) -->
+<div class="setup-overlay" id="setupOverlay">
+  <div class="setup-card">
+    <h2>🏦 Financy PRO</h2>
+    <p>Выберите стартовый финансовый цикл, с которого начинается ваш учёт.</p>
+    <select id="setupCycleSelect"></select>
+    <button class="btn btn-primary" id="setupConfirmBtn" style="width:100%;">Начать учёт</button>
+  </div>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="navbar-brand">
+    <span>🏦</span> Financy PRO
+  </div>
+  <div class="navbar-center">
+    <div class="cycle-selector">
+      <select id="cycleSelect"></select>
+    </div>
+  </div>
+  <div class="navbar-right">
+    <div class="navbar-status" id="syncStatus">
+      <span class="dot red"></span>
+      <span class="status-text">Подключение...</span>
+    </div>
+    <button class="btn btn-outline btn-sm" id="importJsonBtn" title="Импорт / Перенос данных из JSON">📥 Импорт</button>
+    <button class="btn btn-outline btn-sm" id="exportJsonBtn" title="Скачать JSON-бекап">💾 Бекап</button>
+    <button class="btn btn-outline btn-sm" id="openReportBtn" title="Годовой отчёт">📊</button>
+    <button class="btn-icon" id="themeToggle" title="Переключить тему">🌙</button>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container">
+
+  <!-- Metric Cards -->
+  <div class="grid-3" style="margin-bottom:16px;">
+    <div class="card metric-card">
+      <div class="card-header">
+        <span class="card-title">💰 Общий баланс на счёте</span>
+      </div>
+      <div class="card-value" id="totalBalance">0 ₪</div>
+      <div class="card-sub">Накоплено за всё время</div>
+    </div>
+    <div class="card metric-card">
+      <div class="card-header">
+        <span class="card-title">📈 Доходы за текущий цикл</span>
+        <span class="chip chip-primary" id="expensePercent">0%</span>
+      </div>
+      <div class="card-value" id="cycleIncome">0 ₪</div>
+      <div class="card-sub" id="cycleIncomeSub">с 10.06.2026 по 09.07.2026</div>
+    </div>
+    <div class="card metric-card">
+      <div class="card-header">
+        <span class="card-title">💳 Остаток от ЗП (Свободный бюджет)</span>
+      </div>
+      <div class="card-value" id="remainingBudget">0 ₪</div>
+      <div class="card-sub">Доходы цикла − Расходы цикла</div>
+    </div>
+  </div>
+
+  <!-- Row 2: Initial Capital + Donut Chart -->
+  <div class="grid-2" style="margin-bottom:16px;">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🏁 Начальный счёт</span>
+      </div>
+      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:8px;">
+        Укажите сумму, с которой вы начали вести учёт.
+      </p>
+      <div class="capital-input-group">
+        <input type="number" id="startCapitalInput" placeholder="0" step="0.01">
+        <button class="btn btn-primary" id="setCapitalBtn">Ок</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📊 Структура расходов</span>
+      </div>
+      <div class="chart-container">
+        <svg class="donut-svg" viewBox="0 0 160 160" id="donutChart">
+          <circle cx="80" cy="80" r="60" fill="none" stroke="var(--border)" stroke-width="20" />
+          <circle cx="80" cy="80" r="60" fill="none" stroke="var(--chart-color-1)" stroke-width="20"
+            stroke-dasharray="0 377" stroke-dashoffset="0" stroke-linecap="round"
+            transform="rotate(-90 80 80)" id="donutSegment1" style="transition: stroke-dasharray 0.4s ease;" />
+          <circle cx="80" cy="80" r="60" fill="none" stroke="var(--chart-color-2)" stroke-width="20"
+            stroke-dasharray="0 377" stroke-dashoffset="0" stroke-linecap="round"
+            transform="rotate(-90 80 80)" id="donutSegment2" style="transition: stroke-dasharray 0.4s ease;" />
+          <text x="80" y="80" text-anchor="middle" dominant-baseline="middle" font-size="28" font-weight="700" fill="var(--text)" id="donutCenterText">0%</text>
+        </svg>
+        <div class="donut-legend"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Input Forms -->
+  <div class="grid-3" style="margin-bottom:16px;">
+    <div class="card form-section">
+      <div class="form-section-title">💵 Доходы</div>
+      <div class="form-row">
+        <input type="text" id="incomeName" placeholder="Название (Зарплата)">
+        <input type="date" id="incomeDate">
+        <input type="number" id="incomeAmount" placeholder="Сумма ₪" step="0.01">
+        <button class="btn btn-primary" id="addIncomeBtn">+</button>
+      </div>
+    </div>
+    <div class="card form-section">
+      <div class="form-section-title">
+        📋 Постоянные траты
+        <button class="btn btn-outline btn-xs" id="templateBtn">📋 Шаблон</button>
+      </div>
+      <div class="form-row">
+        <input type="text" id="fixedName" placeholder="Аренда, подписки...">
+        <input type="date" id="fixedDate">
+        <input type="number" id="fixedAmount" placeholder="Сумма ₪" step="0.01">
+        <button class="btn btn-primary" id="addFixedBtn">+</button>
+      </div>
+    </div>
+    <div class="card form-section">
+      <div class="form-section-title">
+        💳 Непостоянные траты / Кредитка
+        <button class="btn btn-outline btn-xs" id="addCategoryBtn" title="Управление категориями">📂</button>
+      </div>
+      <div class="form-row">
+        <input type="text" id="variableName" placeholder="Покупка, услуга...">
+        <input type="date" id="variableDate">
+        <input type="number" id="variableAmount" placeholder="Сумма ₪" step="0.01">
+        <button class="btn btn-primary" id="addVariableBtn">+</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Additional Features Row -->
+  <div class="grid-3" style="margin-bottom:16px;">
+    <!-- Trend Chart -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📈 Динамика баланса</span>
+      </div>
+      <div class="trend-chart-wrapper" id="trendChartWrapper">
+        <div class="empty-state" style="padding:10px;"><p>Для графика трендов нужно минимум 2 цикла данных</p></div>
+      </div>
+    </div>
+
+    <!-- Budget Limits -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">💰 Бюджетные лимиты</span>
+        <button class="btn btn-outline btn-xs" id="editBudgetBtn">✏️</button>
+      </div>
+      <div class="budget-bar-container" id="budgetLimitsContainer">
+        <div class="empty-state" style="padding:10px;"><p>Лимиты не установлены</p></div>
+      </div>
+    </div>
+
+    <!-- Cash Flow Forecast -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🔮 Прогноз денежного потока</span>
+      </div>
+      <div id="forecastContainer">
+        <div class="empty-state" style="padding:10px;"><p>Недостаточно данных для прогноза</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Goals + Recurring -->
+  <div class="grid-2" style="margin-bottom:16px;">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🎯 Финансовые цели</span>
+        <button class="btn btn-outline btn-xs" id="addGoalBtn">+ Добавить</button>
+      </div>
+      <div id="goalsContainer">
+        <div class="empty-state" style="padding:10px;"><p>Цели не добавлены</p></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🔄 Регулярные транзакции</span>
+        <button class="btn btn-outline btn-xs" id="addRecurringBtn">+</button>
+      </div>
+      <div id="recurringContainer">
+        <div class="empty-state" style="padding:10px;" id="recurringSummary">
+          <p>Нет регулярных транзакций</p>
+          <p style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">Регулярные траты (аренда, подписки) будут автоматически добавляться каждый месяц</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Operations Table + Mobile Cards -->
+  <div class="card" style="margin-bottom:80px;">
+    <div class="card-header">
+      <span class="card-title">📜 Журнал операций</span>
+      <span style="font-size:0.8rem;color:var(--text-muted);" id="operationsCount">0 операций</span>
+    </div>
+    <!-- Search & Filter Toolbar -->
+    <div class="toolbar">
+      <input type="text" class="search-input" id="searchInput" placeholder="Поиск по операциям...">
+      <select class="filter-select" id="filterSelect">
+        <option value="all">Все категории</option>
+        <option value="income">Доходы</option>
+        <option value="fixed">Постоянные</option>
+        <option value="variable">Непостоянные</option>
+      </select>
+       <button class="btn btn-outline btn-sm" id="exportBtn" title="Экспорт в CSV">📤 CSV</button>
+       <button class="btn btn-outline btn-sm" id="importBtn" title="Импорт из CSV">📥 CSV</button>
+    </div>
+
+    <!-- Desktop Table (hidden on mobile) -->
+    <div class="table-container desktop-only">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:44px;"></th>
+            <th class="sortable" data-sort="name">Название</th>
+            <th class="sortable" data-sort="date" style="width:120px;">Дата</th>
+            <th class="sortable" data-sort="category" style="width:120px;">Категория</th>
+            <th class="sortable" data-sort="amount" style="width:110px;">Сумма</th>
+            <th style="width:80px;"></th>
+          </tr>
+        </thead>
+        <tbody id="operationsBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Mobile Cards (hidden on desktop) -->
+    <div class="mobile-ops-list mobile-only" id="mobileOpsList"></div>
+
+    <div class="empty-state" id="emptyState">
+      <span>📭</span>
+      <p>В этом цикле пока нет операций</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+  <div class="modal">
+    <div class="modal-title" id="editModalTitle">✏️ Редактировать операцию</div>
+    <div class="modal-field">
+      <label for="editName">Название</label>
+      <input type="text" id="editName">
+    </div>
+    <div class="modal-field">
+      <label for="editAmount">Сумма (₪)</label>
+      <input type="number" id="editAmount" step="0.01">
+    </div>
+    <div class="modal-field">
+      <label for="editCategory">Категория</label>
+      <select id="editCategory">
+        <option value="income">Доход</option>
+        <option value="fixed">Постоянная трата</option>
+        <option value="variable">Непостоянная трата</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="editCancelBtn">Отмена</button>
+      <button class="btn btn-primary" id="editSaveBtn">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div class="modal-overlay" id="confirmOverlay" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+  <div class="modal">
+    <div class="modal-title" id="confirmTitle">Подтверждение удаления</div>
+    <p id="confirmText" style="font-size:0.9rem;color:var(--text-secondary);"></p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="confirmNoBtn">Отмена</button>
+      <button class="btn btn-danger" id="confirmYesBtn">Удалить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Categories Modal -->
+<div class="modal-overlay" id="categoriesModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-title">📂 Управление категориями</div>
+    <div class="modal-field">
+      <label for="newCategoryName">Название новой категории</label>
+      <input type="text" id="newCategoryName" placeholder="Например: Продукты, Транспорт...">
+    </div>
+    <div class="modal-field">
+      <label for="newCategoryColor">Цвет</label>
+      <input type="color" id="newCategoryColor" value="#8b5cf6">
+    </div>
+    <button class="btn btn-primary" id="addCategoryBtn" style="width:100%;margin-bottom:16px;">Добавить категорию</button>
+    <div id="categoriesList"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="closeCategoriesBtn">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<!-- Goals Modal -->
+<div class="modal-overlay" id="goalsModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-title">🎯 Добавить финансовую цель</div>
+    <div class="modal-field">
+      <label for="goalNameInput">Название цели</label>
+      <input type="text" id="goalNameInput" placeholder="Например: Отпуск, Машина...">
+    </div>
+    <div class="modal-field">
+      <label for="goalTargetInput">Целевая сумма (₪)</label>
+      <input type="number" id="goalTargetInput" placeholder="50000" step="100">
+    </div>
+    <div class="modal-field">
+      <label for="goalCurrentInput">Уже накоплено (₪)</label>
+      <input type="number" id="goalCurrentInput" placeholder="0" step="100">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="closeGoalsBtn">Отмена</button>
+      <button class="btn btn-primary" id="saveGoalBtn">Добавить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Budget Limits Modal -->
+<div class="modal-overlay" id="budgetModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-title">💰 Редактировать бюджетные лимиты</div>
+    <div id="budgetEditContainer"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="closeBudgetBtn">Отмена</button>
+      <button class="btn btn-primary" id="saveBudgetBtn">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Recurring Transactions Modal -->
+<div class="modal-overlay" id="recurringModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-title">🔄 Регулярные транзакции</div>
+    <div class="modal-field">
+      <label for="recNameInput">Название</label>
+      <input type="text" id="recNameInput" placeholder="Аренда, подписка...">
+    </div>
+    <div class="modal-field">
+      <label for="recAmountInput">Сумма (₪)</label>
+      <input type="number" id="recAmountInput" placeholder="1000" step="0.01">
+    </div>
+    <div class="modal-field">
+      <label for="recDayInput">День месяца (1-28)</label>
+      <input type="number" id="recDayInput" placeholder="10" min="1" max="28">
+    </div>
+    <div class="modal-field">
+      <label for="recCategoryInput">Категория</label>
+      <select id="recCategoryInput">
+        <option value="fixed">Постоянная трата</option>
+        <option value="variable">Непостоянная трата</option>
+        <option value="income">Доход</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" id="saveRecurringBtn" style="width:100%;margin-bottom:16px;">Добавить</button>
+    <div id="recurringList"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="closeRecurringBtn">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hotkeys Help Modal -->
+<div class="modal-overlay" id="hotkeysModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-title">⌨️ Горячие клавиши</div>
+    <div class="hotkey-grid">
+      <div class="hotkey-row">
+        <span class="hotkey-key">Ctrl+N</span>
+        <span>Новый доход (фокус на поле)</span>
+      </div>
+      <div class="hotkey-row">
+        <span class="hotkey-key">Ctrl+F</span>
+        <span>Поиск</span>
+      </div>
+      <div class="hotkey-row">
+        <span class="hotkey-key">Escape</span>
+        <span>Закрыть модальные окна</span>
+      </div>
+      <div class="hotkey-row">
+        <span class="hotkey-key">?</span>
+        <span>Показать помощь</span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="closeHotkeysBtn">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<!-- Annual Report Modal -->
+<div class="modal-overlay" id="reportModal" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-title">📊 Годовой отчёт</div>
+    <div class="form-row" style="margin-bottom:16px;">
+      <label for="reportYearSelect" style="font-size:0.85rem;font-weight:600;">Год:</label>
+      <select id="reportYearSelect" style="flex:1;"></select>
+      <button class="btn btn-primary btn-sm" id="generateReportBtn">Сгенерировать</button>
+    </div>
+    <div id="reportContent"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="closeReportBtn">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<!-- Undo Snackbar -->
+<div class="snackbar" id="undoSnackbar">
+  <span class="snackbar-text"></span>
+  <button class="btn-undo" id="undoBtn">Отменить</button>
+</div>
+
+<!-- Service Worker Registration (PWA) -->
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+</script>
+
+<!-- Main Application (Vite entry point) -->
+<script type="module" src="/src/js/main.js"></script>
+</body>
+</html>

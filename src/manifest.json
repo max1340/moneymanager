@@ -1,0 +1,26 @@
+{
+  "name": "Financy PRO",
+  "short_name": "Financy",
+  "description": "Персональный финансовый трекер — синхронизация через Firebase",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "background_color": "#f4f6fa",
+  "theme_color": "#2a7de1",
+  "orientation": "portrait-primary",
+  "categories": ["finance", "productivity"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%232a7de1' rx='32'/%3E%3Ctext x='96' y='128' text-anchor='middle' font-size='96' fill='white'%3E%F0%9F%8F%A6%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%232a7de1' rx='64'/%3E%3Ctext x='256' y='340' text-anchor='middle' font-size='256' fill='white'%3E%F0%9F%8F%A6%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
